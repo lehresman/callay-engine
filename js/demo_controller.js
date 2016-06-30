@@ -19,22 +19,21 @@ function(
 
   function init() {
     var sourceEvents = [];
-    sourceEvents.push({start: moment('2016-06-09 08:15', 'YYYY-MM-DD HH:mm'), duration: 90, kind: 'appointment', allDay: false});
-    sourceEvents.push({start: moment('2016-06-27 08:15', 'YYYY-MM-DD HH:mm'), duration: 90, kind: 'appointment', allDay: false});
-    sourceEvents.push({start: moment('2016-06-28 08:15', 'YYYY-MM-DD HH:mm'), duration: 90, kind: 'appointment', allDay: false});
-    sourceEvents.push({start: moment('2016-06-29 10:25', 'YYYY-MM-DD HH:mm'), duration: 90, kind: 'appointment', allDay: false});
-    sourceEvents.push({start: moment('2016-06-29 09:45', 'YYYY-MM-DD HH:mm'), duration: 60*24, kind: 'appointment', allDay: false});
-    sourceEvents.push({start: moment('2016-06-30 08:15', 'YYYY-MM-DD HH:mm'), duration: 90, kind: 'appointment', allDay: false});
-    sourceEvents.push({start: moment('2016-07-01 10:25', 'YYYY-MM-DD HH:mm'), duration: 90, kind: 'appointment', allDay: false});
-    sourceEvents.push({start: moment('2016-07-03 10:25', 'YYYY-MM-DD HH:mm'), duration: 90, kind: 'appointment', allDay: false});
-    sourceEvents.push({start: moment('2016-06-02 00:00', 'YYYY-MM-DD HH:mm'), duration: 60*24*12, kind: 'appointment', allDay: true});
-    sourceEvents.push({start: moment('2016-06-28 00:00', 'YYYY-MM-DD HH:mm'), duration: 60*24*5, kind: 'appointment', allDay: true});
-    sourceEvents.push({start: moment('2016-06-29 00:00', 'YYYY-MM-DD HH:mm'), duration: 60*24*2, kind: 'appointment', allDay: true});
-    sourceEvents.push({start: moment('2016-07-02 00:00', 'YYYY-MM-DD HH:mm'), duration: 60*24*3, kind: 'appointment', allDay: true});
+    sourceEvents.push({start: moment.tz('2016-06-09 08:15', 'YYYY-MM-DD HH:mm', 'US/Eastern'), duration: 90, kind: 'appointment', allDay: false});
+    sourceEvents.push({start: moment.tz('2016-06-27 08:15', 'YYYY-MM-DD HH:mm', 'US/Eastern'), duration: 90, kind: 'appointment', allDay: false});
+    sourceEvents.push({start: moment.tz('2016-06-28 08:15', 'YYYY-MM-DD HH:mm', 'US/Eastern'), duration: 90, kind: 'appointment', allDay: false});
+    sourceEvents.push({start: moment.tz('2016-06-29 10:25', 'YYYY-MM-DD HH:mm', 'US/Eastern'), duration: 90, kind: 'appointment', allDay: false});
+    sourceEvents.push({start: moment.tz('2016-06-29 09:45', 'YYYY-MM-DD HH:mm', 'US/Eastern'), duration: 60*24, kind: 'appointment', allDay: false});
+    sourceEvents.push({start: moment.tz('2016-06-30 08:15', 'YYYY-MM-DD HH:mm', 'US/Eastern'), duration: 90, kind: 'appointment', allDay: false});
+    sourceEvents.push({start: moment.tz('2016-07-01 10:25', 'YYYY-MM-DD HH:mm', 'US/Eastern'), duration: 90, kind: 'appointment', allDay: false});
+    sourceEvents.push({start: moment.tz('2016-07-03 10:25', 'YYYY-MM-DD HH:mm', 'US/Eastern'), duration: 90, kind: 'appointment', allDay: false});
+    sourceEvents.push({start: moment.tz('2016-06-02 00:00', 'YYYY-MM-DD HH:mm', 'US/Eastern'), duration: 60*24*12, kind: 'appointment', allDay: true});
+    sourceEvents.push({start: moment.tz('2016-06-28 00:00', 'YYYY-MM-DD HH:mm', 'US/Eastern'), duration: 60*24*5, kind: 'appointment', allDay: true});
+    sourceEvents.push({start: moment.tz('2016-06-29 00:00', 'YYYY-MM-DD HH:mm', 'US/Eastern'), duration: 60*24*2, kind: 'appointment', allDay: true});
+    sourceEvents.push({start: moment.tz('2016-07-02 00:00', 'YYYY-MM-DD HH:mm', 'US/Eastern'), duration: 60*24*3, kind: 'appointment', allDay: true});
 
     angular.forEach(sourceEvents, function(sourceEvent) {
       if (sourceEvent.allDay) {
-        console.log('allDay');
         sourceEvent.start = moment(sourceEvent.start).startOf('day');
         sourceEvent.end = moment(sourceEvent.start).add(sourceEvent.duration, 'minutes').subtract(1, 'minute').endOf('day');
       } else {
@@ -89,6 +88,19 @@ function(
           sourceEvent.startDateStr = dateStr;
           sourceEvent.endDateStr = sourceEvent.end.format('YYYY-MM-DD');
         }
+
+        // Calculate how many days this event spans.  By default it will be 1,
+        // but if it's a multi-day event the span will be to the end of the
+        // week, or the end of the event, whichever is first.  It goes to the
+        // end of the week because a new event box will likely need to be drawn
+        // in the row for the following week.
+        //
+        // Note that we had to calculate the difference in hours instead of
+        // days because moment calculates the difference in UTC, so it may
+        // cross day boundaries differently.  Hours is more accurate.
+        var span = 1 + Math.floor(sourceEvent.end.diff(date, 'hours')/24);
+        span = Math.min(7-date.day()+1, span);
+
         eventContainerMap[dateStr].push({
           dateStr: dateStr,
           sourceEvent: sourceEvent,
@@ -99,10 +111,10 @@ function(
             week: 0,
             wday: 0,
             row: 0,
-            span: 1
+            span: span
           }
         });
-        date = date.add(1, 'day');
+        date = date.add(1, 'day').startOf('day');
       }
     });
 
@@ -117,7 +129,6 @@ function(
         });
         var eventIndex = 0;
         angular.forEach(day.eventContainers, function(eventContainer) {
-          eventContainer.pos.span = 1;
           eventContainer.pos.week = weekIndex;
           eventContainer.pos.wday = wday;
           if (!eventContainer.sourceEvent._row) {
@@ -156,7 +167,6 @@ function(
         });
       });
     });
-    console.log($scope.weeks);
   }
 
   function forEachInterval(callbacks) {
