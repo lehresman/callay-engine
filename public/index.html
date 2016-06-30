@@ -1,0 +1,43 @@
+<!doctype HTML>
+<html>
+<head>
+  <link rel="stylesheet" href="../css/demo.css" />
+  <script src="../js/angular.min.js"></script>
+  <script src="../js/moment.min.js"></script>
+  <script src="../js/demo_controller.js"></script>
+  <script src="../js/engine/engine.js"></script>
+</head>
+<body>
+
+<h1>Callay Engine Demo</h1>
+<div id="wrapper" ng-app="CallayDemo" ng-controller="DemoController">
+  <div class="calendar">
+    <h1>{{ title }}</h1>
+    <div ng-repeat="week in weeks" class="week">
+      <div ng-repeat="day in week.days" class="day">
+        <div class="date">{{ day.date }}</div>
+      </div>
+
+      <div ng-repeat="event in week.events"
+           class="event-wrapper wday{{ event.wday }} row{{ event.row }} span{{ event.span }}"
+           ng-class="{
+             'continued': event.continued,
+             'continued-middle': event.continuedMiddle,
+             'continued-first': event.continuedFirst,
+             'continued-last': event.continuedLast
+           }">
+        <div class="event" ng-if="event.allDay">
+          <span ng-if="event.showLabel">All day</span>
+          <span ng-if="!event.showLabel">&nbsp;</span>
+        </div>
+        <div class="event" ng-if="!event.allDay">
+          <span ng-if="event.showLabel">{{ event.event.start.format('H:mma') }}</span>
+          <span ng-if="!event.showLabel">&nbsp;</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
