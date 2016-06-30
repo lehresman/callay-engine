@@ -106,15 +106,10 @@ body > h1 {
   margin-right: 1px;
   margin-left: 0px;
 }
-.calendar .event-wrapper.continued-middle.wday1,
-.calendar .event-wrapper.continued-middle.wday2,
-.calendar .event-wrapper.continued-middle.wday3,
-.calendar .event-wrapper.continued-middle.wday4,
-.calendar .event-wrapper.continued-middle.wday5,
-.calendar .event-wrapper.continued-middle.wday6,
-.calendar .event-wrapper.continued-last:not(.continued-first):not(.wday0)
-{
-  display: none;
+.calendar .event-wrapper.continued-first.continued-last .event {
+  border-radius: 3px;
+  margin-left: 2px;
+  margin-right: 3px;
 }
 
 .calendar .event-wrapper.wday0 { left: 0; }

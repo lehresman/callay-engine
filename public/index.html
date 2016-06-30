@@ -5,8 +5,8 @@
   <script src="../js/angular.min.js"></script>
   <script src="../js/moment.min.js"></script>
   <script src="../js/moment-timezone-with-data-2010-2020.js"></script>
-  <script src="../js/demo_controller.js"></script>
   <script src="../js/engine/engine.js"></script>
+  <script src="../js/demo_controller.js"></script>
 </head>
 <body>
 
@@ -31,12 +31,10 @@
               'continued-last': eventContainer.flags.continuedLast
             }">
         <div class="event" ng-if="eventContainer.flags.allDay">
-          <span ng-if="eventContainer.flags.showLabel">All day</span>
-          <span ng-if="!eventContainer.flags.showLabel">&nbsp;</span>
+          All day
         </div>
         <div class="event" ng-if="!eventContainer.flags.allDay">
-          <span ng-if="eventContainer.flags.showLabel">{{ eventContainer.sourceEvent.start.format('H:mma') }}</span>
-          <span ng-if="!eventContainer.flags.showLabel">&nbsp;</span>
+          {{ eventContainer.sourceEvent.start.format('h:mma') }}
         </div>
       </div>
     </div>
