@@ -36,8 +36,16 @@ Example JSON
 ============
 
 Here is an example of what the Callay engine returns.  You would then take this
-and create your own calendar UI.  Pay close attention to the `pos` attribute
-that is generated on the `eventContainer` object.  This tells you where to
+and create your own calendar UI.
+
+![Example Calendar UI](https://raw.githubusercontent.com/lehresman/callay-engine/master/public/example.png)
+
+NOTE:  The above image is a demo only.  While the demo is provided in this
+repository, the idea is that you will take the object and create your own UI
+that integrates into your project.
+
+Here is the object that the Callay engine returns.  Pay close attention to the `pos`
+attribute that is generated on the `eventContainer` object.  This tells you where to
 position the event on the calendar.
 
 ```javascript
