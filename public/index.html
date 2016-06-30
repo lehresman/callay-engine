@@ -18,21 +18,24 @@
         <div class="date">{{ day.date }}</div>
       </div>
 
-      <div ng-repeat="event in week.events"
-           class="event-wrapper wday{{ event.wday }} row{{ event.row }} span{{ event.span }}"
+      <div ng-repeat="eventContainer in week.eventContainers"
+           class="event-wrapper
+              wday{{ eventContainer.pos.wday }}
+              row{{ eventContainer.pos.row }}
+              span{{ eventContainer.pos.span }}"
            ng-class="{
-             'continued': event.continued,
-             'continued-middle': event.continuedMiddle,
-             'continued-first': event.continuedFirst,
-             'continued-last': event.continuedLast
-           }">
-        <div class="event" ng-if="event.allDay">
-          <span ng-if="event.showLabel">All day</span>
-          <span ng-if="!event.showLabel">&nbsp;</span>
+              'continued': eventContainer.flags.continued,
+              'continued-middle': eventContainer.flags.continuedMiddle,
+              'continued-first': eventContainer.flags.continuedFirst,
+              'continued-last': eventContainer.flags.continuedLast
+            }">
+        <div class="event" ng-if="eventContainer.flags.allDay">
+          <span ng-if="eventContainer.flags.showLabel">All day</span>
+          <span ng-if="!eventContainer.flags.showLabel">&nbsp;</span>
         </div>
-        <div class="event" ng-if="!event.allDay">
-          <span ng-if="event.showLabel">{{ event.event.start.format('H:mma') }}</span>
-          <span ng-if="!event.showLabel">&nbsp;</span>
+        <div class="event" ng-if="!eventContainer.flags.allDay">
+          <span ng-if="eventContainer.flags.showLabel">{{ eventContainer.sourceEvent.start.format('H:mma') }}</span>
+          <span ng-if="!eventContainer.flags.showLabel">&nbsp;</span>
         </div>
       </div>
     </div>
