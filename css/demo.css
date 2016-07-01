@@ -65,8 +65,8 @@ body > h1 {
 
 .calendar .day .date {
   text-align: right;
-  line-height: 1.3em;
   font-weight: bold;
+  padding-right: 2px;
 }
 
 .calendar .event-wrapper {
@@ -81,7 +81,7 @@ body > h1 {
   padding: 0.05em 0.25em;
   line-height: 1.3em;
   border-radius: 3px;
-  font-size: 13px;
+  font-size: 12px;
   margin: 1px;
   margin-left: 2px;
   margin-right: 3px;
@@ -134,3 +134,14 @@ body > h1 {
 .calendar .event-wrapper.row3 { top: 5.2em; /* $event-height*4; */ }
 .calendar .event-wrapper.row4 { top: 6.5em; /* $event-height*5; */ }
 .calendar .event-wrapper.row5 { top: 7.8em; /* $event-height*6; */ }
+
+@media (max-width: 600px) {
+  .calendar .event-wrapper .event {
+    font-size: 10px;
+    overflow: hidden;
+    text-overflow: clip;
+  }
+  .calendar .day .date {
+    font-size: 10px;
+  }
+}
