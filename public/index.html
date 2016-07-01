@@ -35,10 +35,12 @@
               'continued-first': eventContainer.flags.continuedFirst,
               'continued-last': eventContainer.flags.continuedLast
             }">
-        <div class="event" ng-if="eventContainer.flags.allDay" id="event-{{ eventContainer.id }}">
+        <div class="event" ng-if="eventContainer.flags.allDay"
+             data-event-id="event-{{ eventContainer.id }}">
           All day
         </div>
-        <div class="event" ng-if="!eventContainer.flags.allDay" id="event-{{ eventContainer.id }}">
+        <div class="event" ng-if="!eventContainer.flags.allDay"
+             data-event-id="event-{{ eventContainer.id }}">
           {{ eventContainer.sourceEvent.start.format('h:mma') }}
         </div>
       </div>

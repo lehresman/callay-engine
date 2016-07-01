@@ -77,8 +77,11 @@
           var span = 1 + Math.floor(sourceEvent.end.diff(date, 'hours')/24);
           span = Math.min(7-date.day(), span);
 
+          if (!sourceEvent._eventId)
+            sourceEvent._eventId = nextId++;
+
           eventContainerMap[dateStr].push({
-            id: nextId++,
+            id: sourceEvent._eventId,
             dateStr: dateStr,
             sourceEvent: sourceEvent,
             flags: {
