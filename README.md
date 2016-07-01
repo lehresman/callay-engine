@@ -32,13 +32,15 @@ rendering code, and why not just make it a separate stand-alone project so
 others can build their own UIs on top?
 
 
-Example JSON
-============
+Example
+=======
 
-Here is an example of what the Callay engine returns.  You would then take this
-and create your own calendar UI.
+The output of the Callay engine is a JavaScript object with details on how to
+render the calendar.  *There is no UI component to this calendar engine.*
+However, for demo purposes, here is an example of how a calendar might be rendered
+using the information provided by the Callay engine:
 
-![Example Calendar UI](https://raw.githubusercontent.com/lehresman/callay-engine/master/public/example.png)
+![Example Calendar UI](https://raw.githubusercontent.com/lehresman/callay-engine/master/public/example.png =600x402)
 
 NOTE:  The above image is a demo only.  While the demo is provided in this
 repository, the idea is that you will take the object and create your own UI
@@ -60,46 +62,7 @@ position the event on the calendar.
             "week" : 0,
             "eventContainers" : []
          },
-         {
-            "month" : "May",
-            "wday" : 1,
-            "date" : 30,
-            "week" : 0,
-            "eventContainers" : [],
-            "dateStr" : "2016-05-30"
-         },
-         {
-            "eventContainers" : [],
-            "week" : 0,
-            "date" : 31,
-            "month" : "May",
-            "wday" : 2,
-            "dateStr" : "2016-05-31"
-         },
-         {
-            "dateStr" : "2016-06-01",
-            "wday" : 3,
-            "month" : "Jun",
-            "date" : 1,
-            "week" : 0,
-            "eventContainers" : []
-         },
-         {
-            "date" : 2,
-            "wday" : 4,
-            "month" : "Jun",
-            "eventContainers" : [],
-            "week" : 0,
-            "dateStr" : "2016-06-02"
-         },
-         {
-            "date" : 3,
-            "month" : "Jun",
-            "wday" : 5,
-            "eventContainers" : [],
-            "week" : 0,
-            "dateStr" : "2016-06-03"
-         },
+         /* ... clipped ... */
          {
             "eventContainers" : [],
             "week" : 0,
@@ -284,224 +247,6 @@ position the event on the calendar.
          }
       ]
    },
-   {
-      "days" : [
-         {
-            "dateStr" : "2016-06-12",
-            "eventContainers" : [],
-            "week" : 2,
-            "date" : 12,
-            "month" : "Jun",
-            "wday" : 0
-         },
-         {
-            "date" : 13,
-            "wday" : 1,
-            "month" : "Jun",
-            "eventContainers" : [],
-            "week" : 2,
-            "dateStr" : "2016-06-13"
-         },
-         {
-            "month" : "Jun",
-            "wday" : 2,
-            "date" : 14,
-            "week" : 2,
-            "eventContainers" : [],
-            "dateStr" : "2016-06-14"
-         },
-         {
-            "dateStr" : "2016-06-15",
-            "date" : 15,
-            "month" : "Jun",
-            "wday" : 3,
-            "eventContainers" : [],
-            "week" : 2
-         },
-         {
-            "dateStr" : "2016-06-16",
-            "week" : 2,
-            "eventContainers" : [],
-            "wday" : 4,
-            "month" : "Jun",
-            "date" : 16
-         },
-         {
-            "eventContainers" : [],
-            "week" : 2,
-            "date" : 17,
-            "month" : "Jun",
-            "wday" : 5,
-            "dateStr" : "2016-06-17"
-         },
-         {
-            "week" : 2,
-            "eventContainers" : [],
-            "wday" : 6,
-            "month" : "Jun",
-            "date" : 18,
-            "dateStr" : "2016-06-18"
-         }
-      ],
-      "eventContainers" : []
-   },
-   {
-      "eventContainers" : [],
-      "days" : [
-         {
-            "week" : 3,
-            "eventContainers" : [],
-            "month" : "Jun",
-            "wday" : 0,
-            "date" : 19,
-            "dateStr" : "2016-06-19"
-         },
-         {
-            "date" : 20,
-            "month" : "Jun",
-            "wday" : 1,
-            "eventContainers" : [],
-            "week" : 3,
-            "dateStr" : "2016-06-20"
-         },
-         {
-            "eventContainers" : [],
-            "week" : 3,
-            "date" : 21,
-            "wday" : 2,
-            "month" : "Jun",
-            "dateStr" : "2016-06-21"
-         },
-         {
-            "eventContainers" : [],
-            "week" : 3,
-            "date" : 22,
-            "month" : "Jun",
-            "wday" : 3,
-            "dateStr" : "2016-06-22"
-         },
-         {
-            "date" : 23,
-            "wday" : 4,
-            "month" : "Jun",
-            "eventContainers" : [],
-            "week" : 3,
-            "dateStr" : "2016-06-23"
-         },
-         {
-            "dateStr" : "2016-06-24",
-            "eventContainers" : [],
-            "week" : 3,
-            "date" : 24,
-            "month" : "Jun",
-            "wday" : 5
-         },
-         {
-            "dateStr" : "2016-06-25",
-            "week" : 3,
-            "eventContainers" : [],
-            "wday" : 6,
-            "month" : "Jun",
-            "date" : 25
-         }
-      ]
-   },
-   {
-      "days" : [
-         {
-            "dateStr" : "2016-06-26",
-            "week" : 4,
-            "eventContainers" : [],
-            "month" : "Jun",
-            "wday" : 0,
-            "date" : 26
-         },
-         {
-            "eventContainers" : [],
-            "week" : 4,
-            "date" : 27,
-            "wday" : 1,
-            "month" : "Jun",
-            "dateStr" : "2016-06-27"
-         },
-         {
-            "dateStr" : "2016-06-28",
-            "date" : 28,
-            "month" : "Jun",
-            "wday" : 2,
-            "eventContainers" : [
-               {
-                  "sourceEvent" : {
-                     "duration" : 90,
-                     "allDay" : false,
-                     "start" : "2016-06-28T12:15:00.000Z",
-                  },
-                  "flags" : {
-                     "allDay" : false
-                  },
-                  "dateStr" : "2016-06-28",
-                  "pos" : {
-                     "week" : 4,
-                     "wday" : 2,
-                     "row" : 0,
-                     "span" : 1
-                  }
-               }
-            ],
-            "week" : 4
-         },
-         {
-            "eventContainers" : [],
-            "week" : 4,
-            "date" : 29,
-            "month" : "Jun",
-            "wday" : 3,
-            "dateStr" : "2016-06-29"
-         },
-         {
-            "dateStr" : "2016-06-30",
-            "week" : 4,
-            "eventContainers" : [],
-            "wday" : 4,
-            "month" : "Jun",
-            "date" : 30
-         },
-         {
-            "dateStr" : "2016-07-01",
-            "week" : 4,
-            "eventContainers" : [],
-            "wday" : 5,
-            "month" : "Jul",
-            "date" : 1
-         },
-         {
-            "dateStr" : "2016-07-02",
-            "eventContainers" : [],
-            "week" : 4,
-            "date" : 2,
-            "wday" : 6,
-            "month" : "Jul"
-         }
-      ],
-      "eventContainers" : [
-         {
-            "flags" : {
-               "allDay" : false
-            },
-            "sourceEvent" : {
-               "duration" : 90,
-               "allDay" : false,
-               "start" : "2016-06-28T12:15:00.000Z",
-            },
-            "dateStr" : "2016-06-28",
-            "pos" : {
-               "week" : 4,
-               "wday" : 2,
-               "span" : 1,
-               "row" : 0
-            }
-         }
-      ]
-   }
+   /* ... clipped ... */
 ]
 ```
