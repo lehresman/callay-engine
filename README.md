@@ -40,7 +40,7 @@ render the calendar.  *There is no UI component to this calendar engine.*
 However, for demo purposes, here is an example of how a calendar might be rendered
 using the information provided by the Callay engine:
 
-![Example Calendar UI](https://raw.githubusercontent.com/lehresman/callay-engine/master/public/example.png =600x402)
+<img src="https://raw.githubusercontent.com/lehresman/callay-engine/master/public/example.png" width="700">
 
 NOTE:  The above image is a demo only.  While the demo is provided in this
 repository, the idea is that you will take the object and create your own UI
