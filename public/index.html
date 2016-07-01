@@ -17,6 +17,10 @@
     <div ng-repeat="week in weeks" class="week">
       <div ng-repeat="day in week.days" class="day">
         <div class="date">{{ day.date }}</div>
+        <div class="event-wrapper row{{ day.visibleEvents }} more"
+             ng-if="day.hidden">
+          <div class="event">+{{ day.hidden }} more...</div>
+        </div>
       </div>
 
       <div ng-repeat="eventContainer in week.eventContainers"
@@ -25,6 +29,7 @@
               row{{ eventContainer.pos.row }}
               span{{ eventContainer.pos.span }}"
            ng-class="{
+              'hidden': eventContainer.flags.hidden,
               'continued': eventContainer.flags.continued,
               'continued-middle': eventContainer.flags.continuedMiddle,
               'continued-first': eventContainer.flags.continuedFirst,

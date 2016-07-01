@@ -48,7 +48,7 @@ body > h1 {
   border-top: 1px solid #ccc;
   border-left: 1px solid #ccc;
   position: relative;
-  min-height: 6.8em; /* 5 * event-height + 0.3em */
+  min-height: 8.1em; /* 6 * event-height + 0.3em */
   background-color: #fff;
 }
 .calendar .week:last-child {
@@ -87,6 +87,13 @@ body > h1 {
   margin-right: 3px;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+.calendar .event-wrapper.more .event {
+  background: transparent;
+  text-align: center;
+  font-size: 10px;
+  font-style: italic;
+  color: #c00;
 }
 .calendar .event-wrapper.continued .event {
   background: rgba(0,100,0,.15);

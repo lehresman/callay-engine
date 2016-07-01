@@ -2,6 +2,7 @@
 
   window.CallayEngine = function(startDate, sourceEvents) {
     startDate = moment(startDate); // clone so we don't mess up the original
+    var maxEventsPerDay = 4;
     var weeks = [];
     var month = parseInt(startDate.format('M'));
     var date = startDate.startOf('month');
@@ -35,7 +36,8 @@
             month: startDate.format('MMM'),
             date: startDate.date(),
             wday: startDate.day(),
-            week: weekNum-1
+            week: weekNum-1,
+            hidden: 0
           });
         }
       });
@@ -95,11 +97,7 @@
         forEach(week.days, function(day, wday) {
           day.eventContainers = eventContainerMap[day.dateStr] || [];
           if (!day.eventContainers) return;
-          day.eventContainers.sort(function(a, b) {
-            if (a.sourceEvent.start.isBefore(b.sourceEvent.start)) return -1;
-            if (a.sourceEvent.start.isAfter(b.sourceEvent.start)) return 1;
-            return 0;
-          });
+          sortByStart(day.eventContainers);
           var eventIndex = 0;
           forEach(day.eventContainers, function(eventContainer) {
             eventContainer.pos.week = weekIndex;
@@ -147,17 +145,32 @@
       // them in the dataset initially so we can easily calculate the position
       // on each day.  But in the return value, we want them removed.
       forEach(weeks, function(week, weekIndex) {
-        for (var i=0; i < week.eventContainers.length; i++) {
-          if (week.eventContainers[i].flags.remove) {
-            week.eventContainers.splice(i--, 1);
-          }
-        }
         forEach(week.days, function(day) {
+          // If we've hit the max number of events to display for the day,
+          // remove all further events.  Also check to see if there are MORE
+          // than the max number of events and if so, add a special "more"
+          // marker and remove the max-1 event to make room.
+          for (var i=0; i < day.eventContainers.length; i++) {
+            if (day.eventContainers[i].pos.row >= maxEventsPerDay) {
+              day.hidden += 1;
+            }
+            if (day.eventContainers[i].pos.row >= maxEventsPerDay) {
+              day.visibleEvents = maxEventsPerDay;
+              day.eventContainers[i].flags.remove = true;
+            }
+          }
+
           for (var i=0; i < day.eventContainers.length; i++) {
             if (day.eventContainers[i].flags.remove) {
               day.eventContainers.splice(i--, 1);
             } else {
               delete day.eventContainers[i].flags.remove;
+            }
+          }
+
+          for (var i=0; i < week.eventContainers.length; i++) {
+            if (week.eventContainers[i].flags.remove) {
+              week.eventContainers.splice(i--, 1);
             }
           }
         });
@@ -196,6 +209,17 @@
           callback(object[keys[i]], keys[i]);
         }
       }
+    }
+
+    /**
+     * PRIVATE
+     */
+    function sortByStart(eventContainers) {
+      eventContainers.sort(function(a, b) {
+        if (a.sourceEvent.start.isBefore(b.sourceEvent.start)) return -1;
+        if (a.sourceEvent.start.isAfter(b.sourceEvent.start)) return 1;
+        return 0;
+      });
     }
   };
 
