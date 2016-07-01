@@ -6,7 +6,7 @@
     var month = parseInt(startDate.format('M'));
     var date = startDate.startOf('month');
 
-    angular.forEach(sourceEvents, function(sourceEvent) {
+    forEach(sourceEvents, function(sourceEvent) {
       if (sourceEvent.allDay) {
         sourceEvent.start = moment(sourceEvent.start).startOf('day');
         sourceEvent.end = moment(sourceEvent.start).add(sourceEvent.duration, 'minutes').subtract(1, 'minute').endOf('day');
@@ -50,7 +50,7 @@
      */
     function processEvents() {
       var eventContainerMap = {};
-      angular.forEach(sourceEvents, function(sourceEvent) {
+      forEach(sourceEvents, function(sourceEvent) {
         var date = moment(sourceEvent.start);
         while (date.isBefore(sourceEvent.end)) {
           var dateStr = date.format('YYYY-MM-DD');
@@ -91,8 +91,8 @@
         }
       });
 
-      angular.forEach(weeks, function(week, weekIndex) {
-        angular.forEach(week.days, function(day, wday) {
+      forEach(weeks, function(week, weekIndex) {
+        forEach(week.days, function(day, wday) {
           day.eventContainers = eventContainerMap[day.dateStr] || [];
           if (!day.eventContainers) return;
           day.eventContainers.sort(function(a, b) {
@@ -101,7 +101,7 @@
             return 0;
           });
           var eventIndex = 0;
-          angular.forEach(day.eventContainers, function(eventContainer) {
+          forEach(day.eventContainers, function(eventContainer) {
             eventContainer.pos.week = weekIndex;
             eventContainer.pos.wday = wday;
             if (!eventContainer.sourceEvent._row) {
@@ -146,13 +146,13 @@
       // Now loop through and remove the duplicates for multi-day events.  We had
       // them in the dataset initially so we can easily calculate the position
       // on each day.  But in the return value, we want them removed.
-      angular.forEach(weeks, function(week, weekIndex) {
+      forEach(weeks, function(week, weekIndex) {
         for (var i=0; i < week.eventContainers.length; i++) {
           if (week.eventContainers[i].flags.remove) {
             week.eventContainers.splice(i--, 1);
           }
         }
-        angular.forEach(week.days, function(day) {
+        forEach(week.days, function(day) {
           for (var i=0; i < day.eventContainers.length; i++) {
             if (day.eventContainers[i].flags.remove) {
               day.eventContainers.splice(i--, 1);
@@ -178,6 +178,22 @@
             callbacks.day(date);
           }
           date.add(1, 'day');
+        }
+      }
+    }
+
+    /**
+     * PRIVATE
+     */
+    function forEach(object, callback) {
+      if (object instanceof Array) {
+        for (var i=0; i < object.length; i++) {
+          callback(object[i], i);
+        }
+      } else if (typeof object == 'object') {
+        var keys = Object.keys(object);
+        for (var i=0; i < keys.length; i++) {
+          callback(object[keys[i]], keys[i]);
         }
       }
     }
