@@ -2,6 +2,7 @@
 
   window.CallayEngine = function(startDate, sourceEvents) {
     startDate = moment(startDate); // clone so we don't mess up the original
+    var nextId = parseInt(1000 + Math.random()*8000);
     var maxEventsPerDay = 4;
     var weeks = [];
     var month = parseInt(startDate.format('M'));
@@ -77,6 +78,7 @@
           span = Math.min(7-date.day(), span);
 
           eventContainerMap[dateStr].push({
+            id: nextId++,
             dateStr: dateStr,
             sourceEvent: sourceEvent,
             flags: {
