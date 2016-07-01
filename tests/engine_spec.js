@@ -149,4 +149,21 @@ describe("Callay Test Suite", function() {
     expect(weeks[1].days[5].eventContainers[0].pos.row).toEqual(0);
     expect(weeks[1].days[2].eventContainers[0].pos.row).toEqual(1);
   });
+
+  it('handles spanning events on second row followed by two new events', function() {
+    var sourceEvents = [];
+    sourceEvents.push(createEvent('2016-05-30 00:00', 60*24*5, 'US/Eastern', true));
+    sourceEvents.push(createEvent('2016-06-01 00:00', 60*24*2, 'US/Eastern', true));
+    sourceEvents.push(createEvent('2016-05-28 00:00', 60*24*3, 'US/Eastern', true));
+    sourceEvents.push(createEvent('2016-06-02 09:45', 60*24, 'US/Eastern', true));
+    var weeks = new CallayEngine(startDate, sourceEvents).generateWeeks();
+
+    // There was a bug where two events could overlap if a spanning event on the
+    // second row was followed the next day by two new events.  The second event
+    // would overlap the spanning event on the 2nd row.
+    expect(weeks[0].days[0].eventContainers[0].pos.row).toEqual(0);
+    expect(weeks[0].days[1].eventContainers[0].pos.row).toEqual(1);
+    expect(weeks[0].days[3].eventContainers[0].pos.row).toEqual(0);
+    expect(weeks[0].days[4].eventContainers[0].pos.row).toEqual(2);
+  });
 });

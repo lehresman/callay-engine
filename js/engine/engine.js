@@ -103,18 +103,18 @@
           day.eventContainers = eventContainerMap[day.dateStr] || [];
           if (!day.eventContainers) return;
           sortByStart(day.eventContainers);
-          var eventIndex = 0;
+          var usedIndexes = {};
           forEach(day.eventContainers, function(eventContainer) {
             eventContainer.pos.week = weekIndex;
             eventContainer.pos.wday = wday;
             if (!eventContainer.sourceEvent._row) {
+              var eventIndex = findNextUnused(usedIndexes);
               eventContainer.sourceEvent._row = eventIndex;
               eventContainer.pos.row = eventIndex;
-              eventIndex += 1;
+              usedIndexes[eventIndex] = true;
             } else {
               eventContainer.pos.row = eventContainer.sourceEvent._row;
-              if (eventContainer.pos.row <= eventIndex)
-                eventIndex = eventContainer.sourceEvent._row + 1;
+              usedIndexes[eventContainer.pos.row] = true;
             }
 
             // Figure out if this is an event that spans multiple days.  If so,
@@ -225,6 +225,16 @@
         if (a.sourceEvent.start.isAfter(b.sourceEvent.start)) return 1;
         return 0;
       });
+    }
+
+    /**
+     * PRIVATE
+     */
+    function findNextUnused(indexes) {
+      for (var i=0; i < 50; i++) {
+        if (!indexes[i]) return i;
+      }
+      return i;
     }
   };
 
