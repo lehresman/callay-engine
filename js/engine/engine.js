@@ -9,7 +9,6 @@
     var nextId = parseInt(1000 + Math.random()*8000);
     var maxEventsPerDay = options.maxEventsPerDay || 4;
     var weeks = [];
-    var month = parseInt(startDate.format('M'));
     var date = startDate.startOf('month');
 
     forEach(sourceEvents, function(sourceEvent) {
@@ -190,8 +189,9 @@
      * PRIVATE
      */
     function forEachInterval(callbacks) {
+      var month = startDate.format('YYYY-MM');
       date = date.startOf('week');
-      while (date.format('M') <= month) {
+      while (date.format('YYYY-MM') <= month) {
         if (callbacks.week) {
           callbacks.week(date);
         }

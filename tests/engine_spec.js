@@ -166,4 +166,14 @@ describe("Callay Test Suite", function() {
     expect(weeks[0].days[3].eventContainers[0].pos.row).toEqual(0);
     expect(weeks[0].days[4].eventContainers[0].pos.row).toEqual(2);
   });
+
+  it('works when spanning year boundary', function() {
+    var startDate = moment.tz('2016-01-15', 'YYYY-MM-DD', 'Europe/Berlin');
+    var weeks = new CallayEngine(startDate, []).generateWeeks();
+    expect(weeks.length).toEqual(6);
+
+    var startDate = moment.tz('2016-12-15', 'YYYY-MM-DD', 'Europe/Berlin');
+    var weeks = new CallayEngine(startDate, []).generateWeeks();
+    expect(weeks.length).toEqual(5);
+  });
 });
