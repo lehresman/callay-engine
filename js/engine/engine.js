@@ -25,7 +25,8 @@
      */
     this.generateWeeks = function() {
       weeks = [];
-
+      var todayDate = moment().startOf('day');
+      var todayFormatted = todayDate.format('YYYY-MM-DD');
       var weekNum = 0;
       forEachInterval({
         week: function(startDate) {
@@ -41,6 +42,8 @@
             date: startDate.date(),
             wday: startDate.day(),
             week: weekNum-1,
+            past: startDate.startOf('day').isBefore(todayDate),
+            today: todayFormatted == startDate.format('YYYY-MM-DD'),
             hidden: 0
           });
         }

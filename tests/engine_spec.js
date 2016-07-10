@@ -176,4 +176,27 @@ describe("Callay Test Suite", function() {
     var weeks = new CallayEngine(startDate, []).generateWeeks();
     expect(weeks.length).toEqual(5);
   });
+
+  it('assigns past and today flags appropriately', function() {
+    var todayStr = moment().format('YYYY-MM-DD');
+    var weeks = new CallayEngine(moment(), []).generateWeeks();
+    var hasToday = false;
+    for (var i=0; i < weeks.length; i++) {
+      for (var j=0; j < 7; j++) {
+        var day = weeks[i].days[j];
+        if (day.dateStr == todayStr) {
+          hasToday = true;
+          expect(day.past).toEqual(false);
+          expect(day.today).toEqual(true);
+        } else if (day.dateStr < todayStr) {
+          expect(day.past).toEqual(true);
+          expect(day.today).toEqual(false);
+        } else {
+          expect(day.past).toEqual(false);
+          expect(day.today).toEqual(false);
+        }
+      }
+    }
+    expect(hasToday).toEqual(true);
+  });
 });
