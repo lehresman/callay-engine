@@ -100,7 +100,9 @@
               span: span
             }
           });
-          date = date.add(1, 'day').startOf('day');
+          // Don't simply add 1 day due to some timezones doing DST shifts at midnight
+          // resulting in ambiguity and an infinite loop in this code.
+          date = date.add(30, 'hour').startOf('day');
         }
       });
 
@@ -202,7 +204,9 @@
           if (callbacks.day) {
             callbacks.day(date);
           }
-          date.add(1, 'day');
+          // Don't simply add 1 day due to some timezones doing DST shifts at midnight
+          // resulting in ambiguity and an infinite loop in this code.
+          date.add(30, 'hour').startOf('day');
         }
       }
     }
