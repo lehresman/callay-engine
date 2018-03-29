@@ -1,0 +1,45 @@
+{
+  "name": "callay-engine",
+  "version": "1.0.0",
+  "main": "engine.js",
+  "license": "MIT",
+  "repository": "git@github.com:lehresman/callay-engine.git",
+  "author": "Luke Ehresman <lehresman@gazellenetwork.com>",
+  "scripts": {
+    "start": "webpack-dev-server",
+    "build": "webpack --mode production"
+  },
+  "devServer": {},
+  "devDependencies": {
+    "@types/jest": "^22.2.2",
+    "@types/uuid": "^3.4.3",
+    "jest": "^22.4.3",
+    "ts-jest": "^22.4.2",
+    "ts-loader": "^4.1.0",
+    "typescript": "^2.7.2",
+    "uglifyjs-webpack-plugin": "^1.2.4",
+    "webpack": "^4.3.0",
+    "webpack-cli": "^2.0.13",
+    "webpack-dev-server": "^3.1.1"
+  },
+  "dependencies": {
+    "@types/lodash": "^4.14.106",
+    "@types/moment-timezone": "^0.5.4",
+    "lodash": "^4.17.5",
+    "moment-timezone": "^0.5.14",
+    "uuid": "^3.2.1"
+  },
+  "jest": {
+    "transform": {
+      "^.+\\.ts$": "ts-jest"
+    },
+    "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.ts$",
+    "moduleFileExtensions": [
+      "js",
+      "ts"
+    ],
+    "moduleDirectories": [
+      "node_modules"
+    ]
+  }
+}

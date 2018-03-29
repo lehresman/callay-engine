@@ -1,0 +1,31 @@
+{
+  "compilerOptions": {
+    "outDir": "./dist/",
+    "sourceMap": true,
+    "noImplicitAny": true,
+    "experimentalDecorators": true,
+    "module": "commonjs",
+    "target": "es5",
+    "jsx": "react",
+    "allowJs": true,
+    "lib": [ "es2017", "DOM" ],
+    "baseUrl": ".",
+    "paths": {
+      "@core": ["./src/core/index"],
+      "@core/*": ["./src/core/*"],
+      "@client_scheduler": ["./src/client_scheduler/index"],
+      "@client_scheduler/*": ["./src/client_scheduler/*"],
+      "@client_invoices": ["./src/client_invoices/index"],
+      "@client_invoices/*": ["./src/client_invoices/*"],
+      "@client_confirmation": ["./src/client_confirmation/index"],
+      "@client_confirmation/*": ["./src/client_confirmation/*"]
+    }
+  },
+  "include": [
+    "./src/**/*"
+  ],
+  "exclude": [
+    "./node_modules/**/*",
+    "./dist/**/*"
+  ]
+}
