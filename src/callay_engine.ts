@@ -9,6 +9,7 @@ interface ICallayEvent {
   id: string;
   start: moment.Moment;
   duration: number;
+  isAllDay?: boolean;
 }
 
 type CallayEventData = {
@@ -21,13 +22,13 @@ type CallayWeek = {
   startDate: moment.Moment;
   days: CallayMonthDay[];
   entries: CallayMonthEntry[];
-}
+};
 
 type CallayMonthDay = {
   dateStr: string,
   startDate: moment.Moment;
   entries: CallayMonthEntry[];
-}
+};
 
 type CallayMonthEntry = {
   id: string;
@@ -35,16 +36,17 @@ type CallayMonthEntry = {
   span: number;
   isStart: boolean;
   isEnd: boolean;
+  isAllDay: boolean;
   originalEvent: any;
   currentDateStr: string;
   startDateStr: string;
   endDateStr: string;
-}
+};
 
 
 function findNextUnusedLevel(indexes: boolean[]) {
   let i;
-  for (i=0; i < 50; i++) {
+  for (i = 0; i < 50; i++) {
     if (!indexes[i]) return i;
   }
   return i;
@@ -54,7 +56,7 @@ function forEachInterval(
   startDate: moment.Moment,
   endDate: moment.Moment,
   callbacks: IntervalCallbacks
-){
+) {
   startDate = moment(startDate).startOf('week');
   endDate = moment(endDate).endOf('week');
   let currentDate = startDate;
@@ -62,7 +64,7 @@ function forEachInterval(
     if (callbacks.week) {
       callbacks.week(currentDate);
     }
-    for (let i=0; i < 7; i++) {
+    for (let i = 0; i < 7; i++) {
       if (callbacks.day) {
         callbacks.day(currentDate);
       }
@@ -82,11 +84,11 @@ function generateWeeks(
   let weekNum = 0;
   forEachInterval(startDate, endDate, {
     week: (weekStartDate) => {
-      weeks.push({startDate: weekStartDate, days:[], entries:[]});
+      weeks.push({startDate: weekStartDate, days: [], entries: []});
       weekNum++;
     },
     day: (date) => {
-      let week = weeks[weeks.length-1];
+      let week = weeks[weeks.length - 1];
       week.days.push({
         dateStr: date.format('YYYY-MM-DD'),
         startDate: date,
@@ -112,7 +114,11 @@ function monthLayoutFor(
   events.forEach(event => {
     let currentDate = moment(event.start);
     let eventEndDate = moment(event.start).add(event.duration, 'minutes');
-    let startDateStr= currentDate.format('YYYY-MM-DD');
+    if (event.isAllDay) {
+      currentDate = currentDate.startOf('day');
+      eventEndDate = eventEndDate.subtract(1, 'minute').endOf('day');
+    }
+    let startDateStr = currentDate.format('YYYY-MM-DD');
     let endDateStr = eventEndDate.format('YYYY-MM-DD');
 
     while (currentDate.isBefore(eventEndDate) && currentDate.isBefore(endDate)) {
@@ -137,7 +143,7 @@ function monthLayoutFor(
       // Note that we had to calculate the difference in hours instead of
       // days because moment calculates the difference in UTC, so it may
       // cross day boundaries differently.  Hours is more accurate.
-      let span = 1 + Math.floor(eventEndDate.diff(currentDate, 'hours') / 24);
+      let span = 1 + moment(eventEndDate).endOf('day').diff(moment(currentDate).startOf('day'), 'days');
       span = Math.min(7 - currentDate.day(), span);
 
       eventMap[currentDateStr].push({
@@ -149,6 +155,7 @@ function monthLayoutFor(
         span: span,
         isStart: true,
         isEnd: true,
+        isAllDay: event.isAllDay,
         originalEvent: event,
       });
 
@@ -181,11 +188,13 @@ function monthLayoutFor(
         // Figure out if this is an event that spans multiple days.  If so,
         // set the appropriate flags.  Also check if this event will span
         // multiple rows.
-        if (startDateStr != endDateStr) {
-          if (startDateStr !== entry.currentDateStr)
+        if (startDateStr !== endDateStr) {
+          if (startDateStr !== entry.currentDateStr) {
             entry.isStart = false;
-          if (endDateStr !== moment(entry.currentDateStr).add(entry.span-1, 'days').format('YYYY-MM-DD'))
+          }
+          if (endDateStr !== moment(entry.currentDateStr).add(entry.span - 1, 'days').format('YYYY-MM-DD')) {
             entry.isEnd = false;
+          }
         }
 
         // Figure out if we should remove this entry when it's a multi-day
@@ -195,7 +204,7 @@ function monthLayoutFor(
         // each week (if it spans week boundaries).
         if (!removableIndexes[weekIndex]) removableIndexes[weekIndex] = {};
         if (!removableIndexes[weekIndex][wday]) removableIndexes[weekIndex][wday] = {};
-        removableIndexes[weekIndex][wday][i] = entry.startDateStr != entry.currentDateStr && wday > 0;
+        removableIndexes[weekIndex][wday][i] = entry.startDateStr !== entry.currentDateStr && wday > 0;
 
         if (!removableIndexes[weekIndex][wday][i]) {
           week.entries.push(entry);
@@ -209,15 +218,21 @@ function monthLayoutFor(
   // on each day.  But in the return value, we want them removed.
   weeks.forEach((week, weekIndex) => {
     week.days.forEach((day, wday) => {
-      for (let i=0, originalIndex=0; i < day.entries.length; i++, originalIndex++) {
+      for (let i = 0, originalIndex = 0; i < day.entries.length; i++, originalIndex++) {
         if (removableIndexes[weekIndex][wday][originalIndex]) {
           day.entries.splice(i--, 1);
         }
       }
+
+      day.entries.sort((a, b) => {
+        if (a.level < b.level) return -1;
+        if (a.level > b.level) return 1;
+        return 0;
+      });
     });
   });
 
   return weeks;
 }
 
-export { monthLayoutFor };
+export { monthLayoutFor, CallayWeek, CallayMonthDay, CallayMonthEntry };

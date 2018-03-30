@@ -123,11 +123,11 @@ describe('add', () => {
 
     // 2018-01-07 (Sunday)
     expect(weeks[1].days[0].entries.length).toBe(2);
-    expect(weeks[1].days[0].entries[0].id).toBe(longEvent.id);
-    expect(weeks[1].days[0].entries[0].span).toBe(4);
-    expect(weeks[1].days[0].entries[0].isStart).toBe(false);
-    expect(weeks[1].days[0].entries[0].isEnd).toBe(true);
-    expect(weeks[1].days[0].entries[1].id).not.toBe(longEvent.id);
+    expect(weeks[1].days[0].entries[0].id).not.toBe(longEvent.id);
+    expect(weeks[1].days[0].entries[1].id).toBe(longEvent.id);
+    expect(weeks[1].days[0].entries[1].span).toBe(4);
+    expect(weeks[1].days[0].entries[1].isStart).toBe(false);
+    expect(weeks[1].days[0].entries[1].isEnd).toBe(true);
 
     // 2018-01-09 (Tuesday)
     // Even though longEvent spans through Tuesday, the entry is added
@@ -164,6 +164,24 @@ describe('add', () => {
     ];
     let weeks = monthLayoutFor(startDate, endDate, events);
     expect(weeks.length).toBe(3);
+  });
+
+  it('handles 24-hour events', () => {
+    let event = new TestEvent({start: '2018-01-01 00:00', duration: 60*24, isAllDay: true});
+    let weeks = monthLayoutFor(startDate, endDate, [event]);
+    expect(weeks[0].days[1].entries[0].span).toBe(1);
+    expect(weeks[0].days[1].entries[0].startDateStr).toBe('2018-01-01');
+    expect(weeks[0].days[1].entries[0].endDateStr).toBe('2018-01-01');
+  });
+
+  it('handles event that barely span midnight', () => {
+    let event = new TestEvent({start: '2018-01-01 23:30', duration: 60});
+    let weeks = monthLayoutFor(startDate, endDate, [event]);
+    expect(weeks[0].days[1].entries[0].span).toBe(2);
+    expect(weeks[0].days[1].entries[0].startDateStr).toBe('2018-01-01');
+    expect(weeks[0].days[1].entries[0].endDateStr).toBe('2018-01-02');
+    expect(weeks[0].days[1].entries[0].isStart).toBe(true);
+    expect(weeks[0].days[1].entries[0].isEnd).toBe(true);
   });
 
 });
