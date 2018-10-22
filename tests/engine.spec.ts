@@ -1,5 +1,5 @@
 import * as moment from 'moment-timezone';
-import { monthLayoutFor } from "../src/callay_engine";
+import { dayLayoutFor, monthLayoutFor } from "../src/callay_engine";
 import * as uuid from 'uuid';
 
 class TestEvent {
@@ -31,7 +31,7 @@ function createEvent(attrs: {
   };
 }
 
-describe('add', () => {
+describe('monthLayoutFor', () => {
   let tz = 'Europe/Berlin';
   let startDate = moment.tz('2018-01-01 00:00', tz);
   let endDate = moment.tz('2018-01-15 00:00', tz);
@@ -182,6 +182,115 @@ describe('add', () => {
     expect(weeks[0].days[1].entries[0].endDateStr).toBe('2018-01-02');
     expect(weeks[0].days[1].entries[0].isStart).toBe(true);
     expect(weeks[0].days[1].entries[0].isEnd).toBe(true);
+  });
+});
+
+describe('dayLayoutFor', () => {
+  let tz = 'Europe/Berlin';
+  let startDate = moment.tz('2018-01-01 00:00', tz);
+  let endDate = moment.tz('2018-01-04 23:59', tz);
+
+  it('should categorizes events into the correct day slots', () => {
+    let events: TestEvent[] = [
+      new TestEvent({start: '2018-01-01 08:00', duration: 60}),
+      new TestEvent({start: '2018-01-01 10:00', duration: 60}),
+      new TestEvent({start: '2018-01-02 08:00', duration: 60}),
+      new TestEvent({start: '2018-01-05 08:00', duration: 60}),
+    ];
+    let days = dayLayoutFor(startDate, endDate, events);
+
+    expect(days.length).toBe(4);
+    expect(days[0].dateStr).toBe('2018-01-01');
+    expect(days[0].entries.length).toBe(2);
+    expect(days[1].entries.length).toBe(1);
+    expect(days[2].entries.length).toBe(0);
+    expect(days[3].entries.length).toBe(0);
+  });
+
+  it('should properly mark events that span multiple days', () => {
+    let events: TestEvent[] = [
+      new TestEvent({start: '2017-12-31 00:00', duration: 60*24*3}),
+      new TestEvent({start: '2018-01-01 23:00', duration: 60}),
+      new TestEvent({start: '2018-01-02 23:00', duration: 120}),
+    ];
+    let days = dayLayoutFor(startDate, endDate, events);
+
+    expect(days[0].entries.length).toBe(2);
+    expect(days[0].entries[0].isStart).toBeFalsy();
+    expect(days[0].entries[0].isEnd).toBeFalsy();
+    expect(days[0].entries[1].isStart).toBeTruthy();
+    expect(days[0].entries[1].isEnd).toBeTruthy();
+
+    expect(days[1].entries.length).toBe(2);
+    expect(days[1].entries[0].isStart).toBeFalsy();
+    expect(days[1].entries[0].isEnd).toBeTruthy();
+    expect(days[1].entries[1].isStart).toBeTruthy();
+    expect(days[1].entries[1].isEnd).toBeFalsy();
+  });
+
+  it('should layer overlapping events properly', () => {
+    let events: TestEvent[] = [
+      new TestEvent({start: '2018-01-01 08:00', duration: 60}),
+      new TestEvent({start: '2018-01-01 08:30', duration: 60}),
+      new TestEvent({start: '2018-01-01 09:00', duration: 120}),
+      new TestEvent({start: '2018-01-01 09:30', duration: 60}),
+      new TestEvent({start: '2018-01-01 10:29', duration: 60}),
+      new TestEvent({start: '2018-01-01 11:15', duration: 60}),
+      new TestEvent({start: '2018-01-01 15:00', duration: 30}),
+
+      new TestEvent({start: '2018-01-02 08:00', duration: 120}),
+      new TestEvent({start: '2018-01-02 08:30', duration: 120}),
+      new TestEvent({start: '2018-01-02 09:00', duration: 120}),
+      new TestEvent({start: '2018-01-02 09:30', duration: 120}),
+      new TestEvent({start: '2018-01-02 10:00', duration: 120}),
+
+      new TestEvent({start: '2018-01-03 08:00', duration: 240}),
+      new TestEvent({start: '2018-01-03 08:30', duration: 90}),
+      new TestEvent({start: '2018-01-03 09:00', duration: 60}),
+      new TestEvent({start: '2018-01-03 09:30', duration: 30}),
+      new TestEvent({start: '2018-01-03 10:00', duration: 90}),
+      new TestEvent({start: '2018-01-03 10:30', duration: 60}),
+    ];
+    let days = dayLayoutFor(startDate, endDate, events);
+
+    expect(days[0].entries[0].level).toEqual(0);
+    expect(days[0].entries[1].level).toEqual(1);
+    expect(days[0].entries[2].level).toEqual(0);
+    expect(days[0].entries[3].level).toEqual(1);
+    expect(days[0].entries[4].level).toEqual(2);
+    expect(days[0].entries[5].level).toEqual(0);
+    expect(days[0].entries[6].level).toEqual(0);
+    expect(days[0].entries[0].maxLevel).toEqual(1);
+    expect(days[0].entries[1].maxLevel).toEqual(1);
+    expect(days[0].entries[2].maxLevel).toEqual(2);
+    expect(days[0].entries[3].maxLevel).toEqual(2);
+    expect(days[0].entries[4].maxLevel).toEqual(2);
+    expect(days[0].entries[5].maxLevel).toEqual(2);
+    expect(days[0].entries[6].maxLevel).toEqual(0);
+
+    expect(days[1].entries[0].level).toEqual(0);
+    expect(days[1].entries[1].level).toEqual(1);
+    expect(days[1].entries[2].level).toEqual(2);
+    expect(days[1].entries[3].level).toEqual(3);
+    expect(days[1].entries[4].level).toEqual(0);
+    expect(days[1].entries[0].maxLevel).toEqual(3);
+    expect(days[1].entries[1].maxLevel).toEqual(3);
+    expect(days[1].entries[2].maxLevel).toEqual(3);
+    expect(days[1].entries[3].maxLevel).toEqual(3);
+    expect(days[1].entries[4].maxLevel).toEqual(3);
+
+    expect(days[2].entries[0].level).toEqual(0);
+    expect(days[2].entries[1].level).toEqual(1);
+    expect(days[2].entries[2].level).toEqual(2);
+    expect(days[2].entries[3].level).toEqual(3);
+    expect(days[2].entries[4].level).toEqual(1);
+    expect(days[2].entries[5].level).toEqual(2);
+    expect(days[2].entries[0].maxLevel).toEqual(3);
+    expect(days[2].entries[1].maxLevel).toEqual(3);
+    expect(days[2].entries[2].maxLevel).toEqual(3);
+    expect(days[2].entries[3].maxLevel).toEqual(3);
+    expect(days[2].entries[4].maxLevel).toEqual(2);
+    expect(days[2].entries[5].maxLevel).toEqual(2);
   });
 
 });

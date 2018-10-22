@@ -18,19 +18,38 @@ type CallayEventData = {
   level: number;
 };
 
-type CallayWeek = {
+type CallaySummaryWeek = {
   startDate: moment.Moment;
-  days: CallayMonthDay[];
-  entries: CallayMonthEntry[];
+  days: CallaySummaryDay[];
+  entries: CallaySummaryEntry[];
 };
 
-type CallayMonthDay = {
+type CallaySummaryDay = {
   dateStr: string,
   startDate: moment.Moment;
-  entries: CallayMonthEntry[];
+  entries: CallaySummaryEntry[];
 };
 
-type CallayMonthEntry = {
+type CallayDetailDay = {
+  dateStr: string,
+  entries: CallayDetailEntry[];
+  // allDayEntries: CallaySummaryDay[];
+};
+
+interface ICallayEntry {
+  id: string;
+  level: number;
+  span: number;
+  isStart: boolean;
+  isEnd: boolean;
+  isAllDay: boolean;
+  originalEvent: any;
+  currentDateStr: string;
+  startDateStr: string;
+  endDateStr: string;
+}
+
+type CallaySummaryEntry = {
   id: string;
   level: number;
   span: number;
@@ -43,6 +62,32 @@ type CallayMonthEntry = {
   endDateStr: string;
 };
 
+type CallayDetailEntry = {
+  id: string;
+  level: number;
+  maxLevel?: number;
+  span: number;
+  isStart: boolean;
+  isEnd: boolean;
+  isAllDay: boolean;
+  originalEvent: any;
+  currentDateStr: string;
+  startDateStr: string;
+  endDateStr: string;
+};
+
+type CallayEventMap = {
+  dates: CallayEventDates,
+  bounds: CallayEventBounds,
+};
+
+type CallayEventDates = {
+  [key: string]: ICallayEntry[];
+};
+
+type CallayEventBounds = {
+  [key: string]: CallayEventData;
+};
 
 function findNextUnusedLevel(indexes: boolean[]) {
   let i;
@@ -78,9 +123,9 @@ function forEachInterval(
 function generateWeeks(
   startDate: moment.Moment,
   endDate: moment.Moment,
-): CallayWeek[] {
+): CallaySummaryWeek[] {
 
-  let weeks: CallayWeek[] = [];
+  let weeks: CallaySummaryWeek[] = [];
   let weekNum = 0;
   forEachInterval(startDate, endDate, {
     week: (weekStartDate) => {
@@ -99,35 +144,47 @@ function generateWeeks(
   return weeks;
 }
 
-function monthLayoutFor(
+function generateDays(
   startDate: moment.Moment,
   endDate: moment.Moment,
-  events: ICallayEvent[]
-): CallayWeek[] {
-  let weeks = generateWeeks(startDate, endDate);
-  let eventMap: {[key: string]: CallayMonthEntry[]} = {};
-  let eventBounds: {[key: string]: CallayEventData} = {};
-  let removableIndexes: {[weekIndex: number]: {[wday: number]: {[i: number]: boolean}}} = {};
+): CallayDetailDay[] {
 
-  // Initialize the structures we'll use to track the events and
-  // their locations.
+  let days: CallayDetailDay[] = [];
+  let date = moment(startDate);
+  while (date.isSameOrBefore(endDate, 'day')) {
+    days.push({
+      dateStr: date.format('YYYY-MM-DD'),
+      entries: []
+    });
+    date.add(1, 'day');
+  }
+
+  return days;
+}
+
+function generateEventMap(events: ICallayEvent[], startDate: moment.Moment, endDate: moment.Moment): CallayEventMap {
+  let eventMap: CallayEventMap = {
+    dates: {},
+    bounds: {},
+  };
+
   events.forEach(event => {
     let currentDate = moment(event.start);
-    let eventEndDate = moment(event.start).add(event.duration, 'minutes');
+    let eventEndDate = moment(event.start).add(event.duration, 'minutes').subtract(1, 'second');
     if (event.isAllDay) {
       currentDate = currentDate.startOf('day');
-      eventEndDate = eventEndDate.subtract(1, 'minute').endOf('day');
+      eventEndDate = eventEndDate.endOf('day');
     }
     let startDateStr = currentDate.format('YYYY-MM-DD');
     let endDateStr = eventEndDate.format('YYYY-MM-DD');
 
     while (currentDate.isBefore(eventEndDate) && currentDate.isBefore(endDate)) {
       let currentDateStr = currentDate.format('YYYY-MM-DD');
-      if (!eventMap[currentDateStr]) {
-        eventMap[currentDateStr] = [];
+      if (!eventMap.dates[currentDateStr]) {
+        eventMap.dates[currentDateStr] = [];
       }
-      if (!eventBounds[event.id]) {
-        eventBounds[event.id] = {
+      if (!eventMap.bounds[event.id]) {
+        eventMap.bounds[event.id] = {
           startDateStr: currentDateStr,
           endDateStr: eventEndDate.format('YYYY-MM-DD'),
           level: 0,
@@ -146,7 +203,7 @@ function monthLayoutFor(
       let span = 1 + moment(eventEndDate).endOf('day').diff(moment(currentDate).startOf('day'), 'days');
       span = Math.min(7 - currentDate.day(), span);
 
-      eventMap[currentDateStr].push({
+      eventMap.dates[currentDateStr].push({
         currentDateStr: currentDateStr,
         startDateStr: startDateStr,
         endDateStr: endDateStr,
@@ -165,9 +222,21 @@ function monthLayoutFor(
     }
   });
 
+  return eventMap;
+}
+
+function monthLayoutFor(
+  startDate: moment.Moment,
+  endDate: moment.Moment,
+  events: ICallayEvent[]
+): CallaySummaryWeek[] {
+  let weeks = generateWeeks(startDate, endDate);
+  let eventMap = generateEventMap(events, startDate, endDate);
+  let removableIndexes: {[weekIndex: number]: {[wday: number]: {[i: number]: boolean}}} = {};
+
   weeks.forEach((week, weekIndex) => {
     week.days.forEach((day, wday) => {
-      day.entries = eventMap[day.dateStr] || [];
+      day.entries = eventMap.dates[day.dateStr] || [];
       day.entries.sort((a, b) => {
         if (a.originalEvent.start.isBefore(b.originalEvent.start)) return -1;
         if (a.originalEvent.start.isAfter(b.originalEvent.start)) return 1;
@@ -176,11 +245,11 @@ function monthLayoutFor(
 
       let usedLevels: boolean[] = [];
       day.entries.forEach((entry, i) => {
-        let {startDateStr, endDateStr, level} = eventBounds[entry.id];
+        let {startDateStr, endDateStr, level} = eventMap.bounds[entry.id];
 
         if (!level) {
           level = findNextUnusedLevel(usedLevels);
-          eventBounds[entry.id].level = level;
+          eventMap.bounds[entry.id].level = level;
         }
         usedLevels[level] = true;
         entry.level = level;
@@ -235,4 +304,77 @@ function monthLayoutFor(
   return weeks;
 }
 
-export { monthLayoutFor, CallayWeek, CallayMonthDay, CallayMonthEntry };
+
+function dayLayoutFor(
+  startDate: moment.Moment,
+  endDate: moment.Moment,
+  events: ICallayEvent[]
+): CallayDetailDay[] {
+  let days = generateDays(startDate, endDate);
+  let eventMap = generateEventMap(events, startDate, endDate);
+
+  days.forEach((day, dayIndex) => {
+    day.entries = eventMap.dates[day.dateStr] || [];
+    day.entries.sort((a, b) => {
+      if (a.originalEvent.start.isBefore(b.originalEvent.start)) return -1;
+      if (a.originalEvent.start.isAfter(b.originalEvent.start)) return 1;
+      return 0;
+    });
+
+    let levelMap: CallayDetailEntry[] = [];
+    day.entries.forEach((entry, i) => {
+      if (entry.isAllDay) return;
+
+      let {startDateStr, endDateStr, level} = eventMap.bounds[entry.id];
+
+      // Figure out if this event starts before midnight or ends after midnight.
+      if (startDateStr !== endDateStr) {
+        if (startDateStr !== entry.currentDateStr) {
+          entry.isStart = false;
+        }
+        if (entry.currentDateStr !== endDateStr) {
+          entry.isEnd = false;
+        }
+      }
+
+      let nextLevel = -1;
+      let j = 0;
+      for (j = 0; j < levelMap.length; j++) {
+        let levelEntry = levelMap[j];
+        if (levelEntry) {
+          let levelEnd = moment(levelEntry.originalEvent.start)
+            .add(levelEntry.originalEvent.duration, 'minutes');
+          if (entry.originalEvent.start.isSameOrAfter(levelEnd)) {
+            if (nextLevel < 0) {
+              nextLevel = j;
+            }
+            delete levelMap[j];
+          }
+        } else {
+          if (nextLevel < 0) {
+            nextLevel = j;
+          }
+        }
+      }
+
+      while (levelMap.length && !levelMap[levelMap.length - 1]) {
+        levelMap.length--;
+      }
+
+      if (nextLevel < 0) {
+        nextLevel = j;
+      }
+      levelMap[nextLevel] = entry;
+      levelMap.forEach(levelEntry => {
+        if (!levelEntry.maxLevel || levelMap.length - 1 > levelEntry.maxLevel) {
+          levelEntry.maxLevel = levelMap.length - 1;
+        }
+      });
+      entry.level = nextLevel;
+    });
+  });
+
+  return days;
+}
+
+export { monthLayoutFor, dayLayoutFor, CallaySummaryWeek, CallaySummaryDay, CallaySummaryEntry, CallayDetailEntry, CallayDetailDay };
